@@ -30,12 +30,15 @@ a:active {
     display: flex;
     justify-content: center;
     align-items: center;
-    width:20%;
+    width: min-content;
     border-radius: 20px;
     border-color: #b7c2eb;
     margin-left: 2.5%;
     background-color: #13072e;
     position: relative;
+}
+#inpu{
+    margin: 15px;
 }
 .header-button{
     background-color: #13072e;
@@ -50,17 +53,22 @@ a:active {
 .input{
     background-color: #13072e;
     border-radius: 10px;
+    margin: 5px;
     border-top-color: #b7c2eb;
 }
 .text{
     color: #b7c2eb;
-    padding: 4px;
+    padding:6px;
 }
 
 .buttom-1{
     background-color: #13072e;
     border-radius: 6px;
     border-top-color: #b7c2eb;
+}
+
+#button{
+    border: 1px solid #b7c2eb;
 }
 
 body {

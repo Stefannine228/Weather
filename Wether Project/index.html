@@ -15,14 +15,105 @@
 </header>
 <body>
     <div id="body">
-        <div id="inpu">
-            <input class = "text input" id="inp" type="text" width="100px" value="Kyiv">
-            <input class = "text input"id="button" type="button" value="*Click*" onclick="pogoda()">
+        <form id="inpu">
+            <input class = "text input" id="inp" type="text" width="100px" value="">
+            <input class = "text input" id="button" type="submit">
             <h1 id="hq" class="text">Температура: </h1>
             <h1 id="hq1" class="text">Погода: </h1>
             <div id="weatherImage"></div>
-    </div>
+        </form>
     </div>
 </body>
-<script src="script.js"></script>
+  <script type="module">
+     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+     import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+    // Import the functions you need from the SDKs you need
+   
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyDHgVFDw0YHvT501FLmyemVy6p5HqTi8oE",
+      authDomain: "weather--project.firebaseapp.com",
+      databaseURL: "https://weather--project-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "weather--project",
+      storageBucket: "weather--project.firebasestorage.app",
+      messagingSenderId: "413919305373",
+      appId: "1:413919305373:web:0546f8e58dc8b4d422be74"
+    };
+  
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const btn = document.getElementById('button')
+    console.log(btn)
+
+   
+
+    console.log(app)
+
+    function pogoda(e) {
+   
+        const apiKey = '0e3d38ad12be37cada7e57ba9a32980e';
+        const city = document.getElementById("inp").value;
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+        fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("hq").innerHTML = "Температура: " + data.main.temp + " °C";
+            document.getElementById("hq1").innerHTML = "Погода: " + data.weather[0].main;
+
+            // Очищення попереднього зображення
+            const weatherImageDiv = document.getElementById("weatherImage");
+            weatherImageDiv.innerHTML = ''; // Очистити старе зображення
+
+            const pog = data.weather[0].main;
+            let imgSrc;
+
+            switch (pog) {
+                case "Clear":
+                    imgSrc = 'https://openweathermap.org/img/wn/01d@2x.png';
+                    break;
+                case "Clouds":
+                    imgSrc = 'https://openweathermap.org/img/wn/02d@2x.png';
+                    break;
+                case "Rain":
+                    imgSrc = 'https://openweathermap.org/img/wn/09d@2x.png';
+                    break;
+                case "Thunderstorm":
+                    imgSrc = 'https://openweathermap.org/img/wn/11d@2x.png';
+                    break;
+                case "Snow":
+                    imgSrc = 'https://openweathermap.org/img/wn/13d@2x.png';
+                    break;
+                case "Mist":
+                    imgSrc = 'https://openweathermap.org/img/wn/50d@2x.png';
+                    break;
+                default:
+                    imgSrc = '';
+                    break;
+            }
+
+            if (imgSrc) {
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                weatherImageDiv.appendChild(img);
+            }
+        })
+        .catch(error => {
+            console.error('Є проблема з fetch:', error);
+        });
+}
+
+
+btn.addEventListener('click', function(event){
+  event.preventDefault()
+  pogoda()
+})
+    
+    const messagesRef = getDatabase(app);
+  </script>
 </html>
