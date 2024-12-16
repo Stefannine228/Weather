@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pogoda</title>
+    <link rel="stylesheet" type="text/css" href="css.css">
+</head>
+<header>
+    <div id="header">
+        <div id = "div-for-head-btn">
+            <a class="header-button text" href="index.html">Головна</a>
+        </div>
+    </div>
+</header>
+<body>
+    <div class="flexed-div">
+        <div class="body">
+            <form class="inpu">
+                <input class = "text input" id="inp" type="text" width="100px" value="Київ">
+                <input class = "text input button" id= "button-send" type="submit" value="Дізнатися погоду">
+                <h1 id="hq" class="text">Температура: </h1>
+                <h1 id="hq1" class="text">Погода: </h1>
+                <div id="weatherImage"></div>
+            </form>
+        </div>
+        <div>
+            <div class="body" id="geted-body-div">
+                <form class="inpu" id="geted-form">
+                    <input class="text input button" id="button-get" type="submit" value="Отримати дані">
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+  <script type="module">
+     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+     import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+    // Import the functions you need from the SDKs you need
+   
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyDHgVFDw0YHvT501FLmyemVy6p5HqTi8oE",
+      authDomain: "weather--project.firebaseapp.com",
+      databaseURL: "https://weather--project-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "weather--project",
+      storageBucket: "weather--project.firebasestorage.app",
+      messagingSenderId: "413919305373",
+      appId: "1:413919305373:web:0546f8e58dc8b4d422be74"
+    };
+  
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const btn_get = document.getElementById('button-get')
+    const btn = document.getElementById('button-send')
+    const db = getDatabase()
+    console.log(btn)
+    console.log(app)
+
+
+    async function get_inf() {
+
+        const tasksRef = ref(db,"data/");
+        get(tasksRef)
+        .then((snapshot) => {
+            const data = snapshot.val();
+            const data_values = Object.values(data)
+            const container = document.querySelector('#geted-body-div');
+            function  renderProducts() {
+            let f = "ids"
+            let productListDomString = '<form class="inpu" id="geted-form"><input class="text input button" id="button-get" type="submit" value="Отримати дані"></form>';
+            data_values?.forEach(product => {
+                productListDomString += `
+                    <div class="text geted-data">
+                        <p>${product.city}</p>
+                        <p>Температура: ${product.main.temp} °C</p>
+                        <p>Дата: ${product.date}</p>
+                    </div>`;
+                });
+            container.innerHTML = productListDomString;
+            }
+            renderProducts()
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+        console.log("Happy!!!")
+    }
+
+
+
+    async function pogoda() {
+        const today = new Date()
+        const year = today.getFullYear()
+        const month = today.getMonth() + 1
+        const day = today.getDate()
+        const formattedDate = `${day.toString().padStart(2, '0')}${month.toString().padStart(2, '0')}${year}`
+        const notformattedDate = `${day.toString().padStart(2, '0')}.${month.toString().padStart(2, '0')}.${year}`
+        const apiKey = '0e3d38ad12be37cada7e57ba9a32980e'
+        const city = document.getElementById("inp").value
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("hq").innerHTML = "Температура: " + data.main.temp + " °C"
+                document.getElementById("hq1").innerHTML = "Погода: " + data.weather[0].main
+
+                const weatherImageDiv = document.getElementById("weatherImage")
+                weatherImageDiv.innerHTML = ''
+
+                const pog = data.weather[0].main
+                let imgSrc
+
+                switch (pog) {
+                    case "Clear":
+                        imgSrc = 'https://openweathermap.org/img/wn/01d@2x.png'
+                        break;
+                    case "Clouds":
+                        imgSrc = 'https://openweathermap.org/img/wn/02d@2x.png'
+                        break;
+                    case "Rain":
+                        imgSrc = 'https://openweathermap.org/img/wn/09d@2x.png'
+                        break;
+                    case "Thunderstorm":
+                        imgSrc = 'https://openweathermap.org/img/wn/11d@2x.png'
+                        break;
+                    case "Snow":
+                        imgSrc = 'https://openweathermap.org/img/wn/13d@2x.png'
+                        break;
+                    case "Mist":
+                        imgSrc = 'https://openweathermap.org/img/wn/50d@2x.png'
+                        break;
+                    default:
+                        imgSrc = ''
+                        break;
+                }
+                    const elementy = "data/"+String(data.id)+"_"+String(formattedDate)
+                if (imgSrc) {
+                    const img = document.createElement('img')
+                    img.src = imgSrc
+                    weatherImageDiv.appendChild(img)
+                }
+                const idsRef = ref(db, "ids")
+                get(idsRef)
+                    .then((snapshot) => {
+                        let idf = 0;
+                        idf = snapshot.val() + 1
+                        set(ref(db, "ids"), idf)
+                        console.log("Значення ids: ", idf)
+                    })
+                get(child(ref(db), elementy)).then(snapshot => {
+                    if (snapshot.exists()) {
+                        console.log("Елемент існує")
+                    }
+                    else{
+                        set(ref(db,elementy),data)
+                        set(ref(db,elementy+"/city/"),city)
+                        set(ref(db,elementy+"/date/"),notformattedDate)
+                    }
+                })
+                console.log(data)
+            })
+            .catch(error => {
+                console.error('Є проблема з fetch:', error)
+            });
+}
+
+btn.addEventListener('click', function(event){
+  event.preventDefault()
+  pogoda()
+})
+btn_get.addEventListener('click', function(ev){
+    ev.preventDefault()
+    get_inf()
+})
+    
+    const messagesRef = getDatabase(app)
+  </script>
+</html>
